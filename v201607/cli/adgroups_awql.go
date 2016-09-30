@@ -20,7 +20,7 @@ func main() {
 	cs := gads.NewAdGroupService(&config.Auth)
 	fmt.Printf("AdGroups\n")
 
-	foundAdGroups, totalCount, err := cs.Query("SELECT AdGroupId, Name, Status WHERE CampaignId = '123'")
+	foundAdGroups, totalCount, err := cs.Query("SELECT AdGroupId, Name, Status WHERE CampaignId = '211793582'")
 	fmt.Println(totalCount)
 	if err != nil {
 		log.Fatal(err)
