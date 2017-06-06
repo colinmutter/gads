@@ -114,6 +114,8 @@ type OrderBy struct {
 	SortOrder string `xml:"sortOrder"`
 }
 
+// Paging Specifies the page of results to return in the response.
+// A page is specified by the result position to start at and the maximum number of results to return.
 type Paging struct {
 	Offset int64 `xml:"startIndex"`
 	Limit  int64 `xml:"numberResults"`
