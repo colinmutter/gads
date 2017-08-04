@@ -1,4 +1,4 @@
-package v201609
+package v201702
 
 import (
 	"encoding/xml"
@@ -13,7 +13,6 @@ type Customer struct {
 	CurrencyCode               string                     `xml:"currencyCode"`
 	DateTimeZone               string                     `xml:"dateTimeZone"`
 	DescriptiveName            string                     `xml:"descriptiveName"`
-	CompanyName                string                     `xml:"companyName"`
 	CanManageClients           bool                       `xml:"canManageClients"`
 	TestAccount                bool                       `xml:"testAccount"`
 	AutoTaggingEnabled         bool                       `xml:"autoTaggingEnabled"`

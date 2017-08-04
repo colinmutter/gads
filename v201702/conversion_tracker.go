@@ -1,4 +1,4 @@
-package v201609
+package v201702
 
 type ConversionTrackingSettings struct {
 	EffectiveConversionTrackingId      int64 `xml:effectiveConversionTrackingId`

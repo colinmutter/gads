@@ -2,7 +2,7 @@ package main
 
 import (
 	"flag"
-	gads "github.com/colinmutter/gads/v201609"
+	gads "github.com/colinmutter/gads/v201702"
 	"log"
 )
 

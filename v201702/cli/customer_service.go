@@ -4,7 +4,7 @@ import (
 	"encoding/json"
 	"flag"
 	"fmt"
-	gads "github.com/colinmutter/gads/v201609"
+	gads "github.com/colinmutter/gads/v201702"
 	"log"
 )
 

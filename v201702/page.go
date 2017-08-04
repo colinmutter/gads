@@ -1,8 +1,8 @@
-package v201609
+package v201702
 
-// https://developers.google.com/adwords/api/docs/reference/v201609/AdGroupExtensionSettingService.Page
+// https://developers.google.com/adwords/api/docs/reference/v201702/AdGroupExtensionSettingService.Page
 // Contains the results from a get call.
 type Page struct {
-	TotalNumEntries int    `xml:"https://adwords.google.com/api/adwords/cm/v201609 totalNumEntries,omitempty"`
-	PageType        string `xml:"https://adwords.google.com/api/adwords/cm/v201609 Page.Type,omitempty"`
+	TotalNumEntries int    `xml:"https://adwords.google.com/api/adwords/cm/v201702 totalNumEntries,omitempty"`
+	PageType        string `xml:"https://adwords.google.com/api/adwords/cm/v201702 Page.Type,omitempty"`
 }
