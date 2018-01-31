@@ -8,7 +8,7 @@ the current versions.
 ## Installation
 
 ~~~
-	go get github.com/Getsidecar/gads
+	go get github.com/colinmutter/gads
 ~~~
 
 ## Setup
