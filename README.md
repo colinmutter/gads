@@ -1,9 +1,6 @@
 # gads (Google Adwords Golang SDK)
 
-Package gads provides a wrapper for the Google Adwords SOAP API.  Based off of
-[colinmutter/gads](https://github.com/colinmutter/gads), this version
-was updated to support v201710 and additional functionality that was missing from 
-the current versions.  
+Package gads provides a wrapper for the currently supported versions of Google Adwords SOAP API. 
 
 ## Installation
 
