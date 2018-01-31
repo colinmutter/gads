@@ -1,22 +1,19 @@
-# gads
+# gads (Google Adwords Golang SDK)
 
 Package gads provides a wrapper for the Google Adwords SOAP API.  Based off of
-[emiddleton/gads](https://github.com/emiddleton/gads), this version
-was updated to support v201605, v201607 and v201609 and Go 1.5.
+[colinmutter/gads](https://github.com/colinmutter/gads), this version
+was updated to support v201710 and additional functionality that was missing from 
+the current versions.  
 
-Currently this project remains a fork and is a joint effort between
-[colinmutter/gads](https://github.com/colinmutter/gads) and [rfink/gads](https://github.com/rfink/gads).
-
-
-## installation
+## Installation
 
 ~~~
-	go get github.com/colinmutter/gads
+	go get github.com/Getsidecar/gads
 ~~~
 
-## setup
+## Setup
 
-In order to access the API you will need to sign up for an MMC
+In order to access the API you will need to sign up for an MCC
 account[1], get a developer token[2] and setup authentication[3].
 There is a tool in the setup_oauth2 directory that will help you
 setup a configuration file.
@@ -36,17 +33,17 @@ For example in this CLI script, I am handling a conf file via flags:
 NOTE: Other examples still need to be updated to support the removal of the built-in
 oauth configuration file flag.
 
-## versions
+## Versions
 
 This project currently supports v201605, v201607 and v201609.  To select
 the appropriate version, import the specific package:
 
 	  import (
-	    gads "github.com/colinmutter/gads/v201609"
+	    gads "github.com/colinmutter/gads/v201710"
 	  )
 
 
-## usage
+## Usage
 
 The package is comprised of services used to manipulate various
 adwords structures.  To access a service you need to create an
@@ -57,7 +54,7 @@ the service methods on the service object.
      authConf, err := NewCredentialsFromFile("~/creds.json")
      campaignService := gads.NewCampaignService(&authConf.Auth)
 
-     campaigns, totalCount, err := cs.Get(
+     campaigns, totalCount, err := campaignService.Get(
        gads.Selector{
          Fields: []string{
            "Id",
@@ -70,10 +67,6 @@ the service methods on the service object.
 
 > Note: This package is a work-in-progress, and may occasionally
 > make backwards-incompatible changes.
-
-See godoc for further documentation and examples.
-
-* [godoc.org/github.com/emiddleton/gads](https://godoc.org/github.com/emiddleton/gads)
 
 ## about
 
