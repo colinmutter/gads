@@ -35,7 +35,7 @@ oauth configuration file flag.
 
 ## Versions
 
-This project currently supports v201605, v201607 and v201609.  To select
+This project currently supports v201705 and v2017120.  To select
 the appropriate version, import the specific package:
 
 	  import (
