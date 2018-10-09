@@ -172,7 +172,7 @@ type CampaignCriterionOperation struct {
 	CampaignCriterion interface{} `xml:"operand"`
 }
 
-func (s *CampaignCriterionService) MutateOperations(operations []CampaignCriterionOperation) (campaignCriterions CampaignCriterions, err error) {
+func (s *CampaignCriterionService) MutateOperations(operations []CampaignCriterionOperation) (CampaignCriterions, error) {
 	mutation := struct {
 		XMLName xml.Name
 		Ops     []CampaignCriterionOperation `xml:"operations"`
@@ -183,7 +183,12 @@ func (s *CampaignCriterionService) MutateOperations(operations []CampaignCriteri
 		},
 		Ops: operations,
 	}
-	respBody, err := s.Auth.request(campaignCriterionServiceUrl, "mutate", mutation)
+
+	mutateResp := struct {
+		XMLName            xml.Name
+		CampaignCriterions CampaignCriterions `xml:"rval>value"`
+	}{}
+	err := s.Auth.do(campaignCriterionServiceUrl, "mutate", mutation, &mutateResp)
 	if err != nil {
 		/*
 			    switch t := err.(type) {
@@ -213,18 +218,10 @@ func (s *CampaignCriterionService) MutateOperations(operations []CampaignCriteri
 			      }
 			    default:
 		*/
-		return campaignCriterions, err
+		return nil, err
 		//}
 	}
-	mutateResp := struct {
-		CampaignCriterions CampaignCriterions `xml:"rval>value"`
-	}{}
-	err = xml.Unmarshal([]byte(respBody), &mutateResp)
-	if err != nil {
-		return campaignCriterions, err
-	}
 	return mutateResp.CampaignCriterions, err
-
 }
 
 func (s *CampaignCriterionService) Mutate(campaignCriterionOperations CampaignCriterionOperations) (campaignCriterions CampaignCriterions, err error) {

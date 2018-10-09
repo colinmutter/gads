@@ -173,7 +173,32 @@ func selectorError() (err error) {
 	return err
 }
 
+func (a *Auth) do(serviceUrl ServiceUrl, action string, body, ret interface{}) error {
+	raw, err := a.doRequest(serviceUrl, action, body, true)
+	if err != nil {
+		return err
+	}
+
+	if err = xml.Unmarshal([]byte(raw), &ret); err != nil {
+		return err
+	}
+
+	if level := os.Getenv("DEBUG"); level != "" {
+		if resBody, err := xml.MarshalIndent(ret, "  ", "  "); err != nil {
+			fmt.Println("warn: ", err)
+		} else {
+			fmt.Printf("response->\n%s\n", string(resBody))
+		}
+	}
+
+	return nil
+}
+
 func (a *Auth) request(serviceUrl ServiceUrl, action string, body interface{}) (respBody []byte, err error) {
+	return a.doRequest(serviceUrl, action, body, false)
+}
+
+func (a *Auth) doRequest(serviceUrl ServiceUrl, action string, body interface{}, minDebug bool) (respBody []byte, err error) {
 
 	type devToken struct {
 		XMLName xml.Name
@@ -248,8 +273,10 @@ func (a *Auth) request(serviceUrl ServiceUrl, action string, body interface{}) (
 	respBody, err = ioutil.ReadAll(resp.Body)
 
 	// Added some logging/"poor man's" debugging to inspect outbound SOAP requests
-	if level := os.Getenv("DEBUG"); level != "" {
-		fmt.Printf("response ->\n%s\n", string(respBody))
+	if !minDebug {
+		if level := os.Getenv("DEBUG"); level != "" {
+			fmt.Printf("response ->\n%s\n", string(respBody))
+		}
 	}
 
 	if a.Testing != nil {
