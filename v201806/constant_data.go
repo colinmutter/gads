@@ -139,6 +139,8 @@ func (s *ConstantDataService) GetOperatingSystemVersionCriterion() (operatingSys
 }
 
 func (s *ConstantDataService) GetProductBiddingCategoryCriterion(selector Selector) (categoryData []ProductBiddingCategoryData, err error) {
+	selector.XMLName = xml.Name{baseUrl, "selector"}
+
 	respBody, err := s.Auth.request(
 		constantDataServiceUrl,
 		"getProductBiddingCategoryData",

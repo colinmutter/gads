@@ -167,22 +167,12 @@ func (s *CampaignCriterionService) Get(selector Selector) (campaignCriterions Ca
 	return getResp.CampaignCriterions, getResp.Size, err
 }
 
-func (s *CampaignCriterionService) Mutate(campaignCriterionOperations CampaignCriterionOperations) (campaignCriterions CampaignCriterions, err error) {
-	type campaignCriterionOperation struct {
-		Action            string      `xml:"operator"`
-		CampaignCriterion interface{} `xml:"operand"`
-	}
-	operations := []campaignCriterionOperation{}
-	for action, campaignCriterions := range campaignCriterionOperations {
-		for _, campaignCriterion := range campaignCriterions {
-			operations = append(operations,
-				campaignCriterionOperation{
-					Action:            action,
-					CampaignCriterion: campaignCriterion,
-				},
-			)
-		}
-	}
+type campaignCriterionOperation struct {
+	Action            string      `xml:"operator"`
+	CampaignCriterion interface{} `xml:"operand"`
+}
+
+func (s *CampaignCriterionService) MutateOperations(operations []campaignCriterionOperation) (campaignCriterions CampaignCriterions, err error) {
 	mutation := struct {
 		XMLName xml.Name
 		Ops     []campaignCriterionOperation `xml:"operations"`
@@ -234,6 +224,23 @@ func (s *CampaignCriterionService) Mutate(campaignCriterionOperations CampaignCr
 		return campaignCriterions, err
 	}
 	return mutateResp.CampaignCriterions, err
+
+}
+
+func (s *CampaignCriterionService) Mutate(campaignCriterionOperations CampaignCriterionOperations) (campaignCriterions CampaignCriterions, err error) {
+	operations := []campaignCriterionOperation{}
+	for action, campaignCriterions := range campaignCriterionOperations {
+		for _, campaignCriterion := range campaignCriterions {
+			operations = append(operations,
+				campaignCriterionOperation{
+					Action:            action,
+					CampaignCriterion: campaignCriterion,
+				},
+			)
+		}
+	}
+
+	return s.MutateOperations(operations)
 }
 
 func (s *CampaignCriterionService) Query(query string) (campaignCriterions CampaignCriterions, totalCount int64, err error) {

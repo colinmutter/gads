@@ -50,6 +50,7 @@ var (
 	biddingStrategyServiceUrl         = ServiceUrl{baseUrl, "BiddingStrategyService"}
 	budgetOrderServiceUrl             = ServiceUrl{baseUrl, "BudgetOrderService"}
 	budgetServiceUrl                  = ServiceUrl{baseUrl, "BudgetService"}
+	CampaignBidModifierUrl            = ServiceUrl{baseUrl, "CampaignBidModifierService"}
 	campaignExtensionSettingUrl       = ServiceUrl{baseUrl, "CampaignExtensionSettingService"}
 	campaignCriterionServiceUrl       = ServiceUrl{baseUrl, "CampaignCriterionService"}
 	campaignFeedServiceUrl            = ServiceUrl{baseUrl, "CampaignFeedService"}

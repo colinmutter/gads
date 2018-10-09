@@ -41,6 +41,74 @@ func createUniqueId() int64 {
 	return time.Now().UnixNano() * -1
 }
 
+func TestConstantDataSvc(t *testing.T) {
+	config := getTestConfig()
+	svc := NewConstantDataService(&config.Auth)
+	selector := Selector{
+		Fields: []string{
+			"ProductBiddingCategory",
+			"ParentDimensionValue",
+			"DisplayValue",
+		},
+		Predicates: []Predicate{
+			{Field: "Country", Operator: "EQUALS", Values: []string{"US"}},
+		},
+	}
+	xs, err := svc.GetProductBiddingCategoryCriterion(selector)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	byid := map[string]ProductBiddingCategoryData{}
+
+	for i := range xs {
+		if xs[i].Status == "ACTIVE" {
+			byid[xs[i].DimensionValue.Value] = xs[i]
+		}
+	}
+
+	//for k, v := range byid {
+	//	fmt.Println(k, v)
+	//}
+
+	var buildval func(string) string
+	seen := map[string]struct{}{}
+
+	buildval = func(id string) string {
+		dv := byid[id]
+		//fmt.Println("id:", id, dv.DimensionValue.DimensionType)
+		val := dv.DisplayValue[0].Value
+		if dv.DimensionValue.DimensionType == "BIDDING_CATEGORY_L1" {
+		} else {
+			val = buildval(dv.ParentDimensionValue.Value) + " > " + val
+		}
+
+		if _, ok := seen[id]; !ok {
+			fmt.Printf("%s|%s\n", dv.DimensionValue.Value, val)
+			seen[id] = struct{}{}
+		}
+		return val
+	}
+
+	for i := range xs {
+		if xs[i].Status != "ACTIVE" {
+			continue
+		}
+		//fmt.Printf("%#v\n", xs[i])
+		buildval(xs[i].DimensionValue.Value)
+		//fmt.Printf("%s|%s\n", xs[i].DimensionValue.Value, val)
+	}
+
+	//fmt.Printf("%s|%s|%s\n", xs[i].DimensionValue, xs[i].ParentDimensionValue, xs[i].DisplayValue[0].Value)
+}
+
+func TestCampaignQuery(t *testing.T) {
+	config := getTestConfig()
+	svc := NewAdGroupService(&config.Auth)
+	xs, _, err := svc.Query("select Id, Name, CampaignId, Status, AdGroupType")
+	fmt.Println(xs, err)
+}
+
 func createBatchTextAdOperation(adgroupId int64) (operations AdGroupAdOperations) {
 	fmt.Printf("using adgroup id: %d\n", adgroupId)
 	return AdGroupAdOperations{
@@ -994,6 +1062,60 @@ func TestSandboxValidateOnly(t *testing.T) {
 	if len(originalcrits) != len(currentcrits) {
 		t.Errorf("actual crits after validateonly mutate: %d, expected: %d\n", len(currentcrits), len(originalcrits))
 	}
+}
+
+func TestSandboxCampaignBidModifier(t *testing.T) {
+	config := getTestConfig()
+
+	constants, err := NewConstantDataService(&config.Auth).GetAgeRangeCriterion()
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	fmt.Println(constants)
+
+	campaigns, n, err := NewCampaignService(&config.Auth).Get(Selector{
+		Fields: []string{"Id", "Name"},
+	})
+
+	for i := range campaigns {
+		fmt.Println(campaigns[i])
+	}
+
+	testCampaign := func() int64 {
+		for i := range campaigns {
+			if campaigns[i].Name == "sidecar-test-campaign" {
+				return campaigns[i].Id
+			}
+		}
+
+		panic("missing campaign")
+	}()
+
+	svc := NewCampaignCriterionService(&config.Auth)
+
+	//svc := NewCampaignBidModifierService(&config.Auth)
+	//xs, n, err := svc.Get(Selector{
+	//	Fields: []string{"CampaignId", "AdvertisingChannelType", "BidModifier"},
+	//})
+	//fmt.Println(xs, n, err)
+
+	//ops := []CampaignBidModifierOperation{
+	//	CampaignBidModifierOperation{
+	//		Operator: "ADD",
+	//		Operand: &CampaignBidModifier{
+	//			CampaignId:  testCampaign,
+	//			BidModifier: 1.2,
+	//			Criterion: CampaignBidModifierCriterion{
+	//				Id:   8000,
+	//				Type: "Location",
+	//			},
+	//		},
+	//	},
+	//}
+
+	//ret, err := svc.MutateOperations(ops)
+	//fmt.Println(ret, err)
 }
 
 func TestSandboxSharedEntity(t *testing.T) {
