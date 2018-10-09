@@ -167,15 +167,15 @@ func (s *CampaignCriterionService) Get(selector Selector) (campaignCriterions Ca
 	return getResp.CampaignCriterions, getResp.Size, err
 }
 
-type campaignCriterionOperation struct {
+type CampaignCriterionOperation struct {
 	Action            string      `xml:"operator"`
 	CampaignCriterion interface{} `xml:"operand"`
 }
 
-func (s *CampaignCriterionService) MutateOperations(operations []campaignCriterionOperation) (campaignCriterions CampaignCriterions, err error) {
+func (s *CampaignCriterionService) MutateOperations(operations []CampaignCriterionOperation) (campaignCriterions CampaignCriterions, err error) {
 	mutation := struct {
 		XMLName xml.Name
-		Ops     []campaignCriterionOperation `xml:"operations"`
+		Ops     []CampaignCriterionOperation `xml:"operations"`
 	}{
 		XMLName: xml.Name{
 			Space: baseUrl,
@@ -228,11 +228,11 @@ func (s *CampaignCriterionService) MutateOperations(operations []campaignCriteri
 }
 
 func (s *CampaignCriterionService) Mutate(campaignCriterionOperations CampaignCriterionOperations) (campaignCriterions CampaignCriterions, err error) {
-	operations := []campaignCriterionOperation{}
+	operations := []CampaignCriterionOperation{}
 	for action, campaignCriterions := range campaignCriterionOperations {
 		for _, campaignCriterion := range campaignCriterions {
 			operations = append(operations,
-				campaignCriterionOperation{
+				CampaignCriterionOperation{
 					Action:            action,
 					CampaignCriterion: campaignCriterion,
 				},

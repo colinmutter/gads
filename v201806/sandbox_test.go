@@ -1074,7 +1074,7 @@ func TestSandboxCampaignBidModifier(t *testing.T) {
 
 	fmt.Println(constants)
 
-	campaigns, n, err := NewCampaignService(&config.Auth).Get(Selector{
+	campaigns, _, err := NewCampaignService(&config.Auth).Get(Selector{
 		Fields: []string{"Id", "Name"},
 	})
 
@@ -1093,6 +1093,43 @@ func TestSandboxCampaignBidModifier(t *testing.T) {
 	}()
 
 	svc := NewCampaignCriterionService(&config.Auth)
+
+	ys, _, err := svc.Get(Selector{
+		Fields: []string{"CampaignId", "BidModifier"},
+	})
+
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	for i := range ys {
+		if y, ok := ys[i].(NegativeCampaignCriterion); ok {
+			if crit, ok := y.Criterion.(Location); ok {
+				if y.BidModifier != nil {
+					fmt.Println(y.CampaignId, crit.Id, *y.BidModifier)
+				}
+			}
+		}
+	}
+
+	modifier := 1.5
+
+	ops := []CampaignCriterionOperation{
+		CampaignCriterionOperation{
+			Action: "ADD",
+			CampaignCriterion: CampaignCriterion{
+				Criterion: Location{
+					Id: 1025197,
+				},
+				BidModifier: &modifier,
+				IsNegative:  false,
+				CampaignId:  testCampaign,
+			},
+		},
+	}
+
+	xs, err := svc.MutateOperations(ops)
+	fmt.Println(xs, err)
 
 	//svc := NewCampaignBidModifierService(&config.Auth)
 	//xs, n, err := svc.Get(Selector{
