@@ -21,7 +21,6 @@ type CampaignCriterion struct {
 type NegativeCampaignCriterion CampaignCriterion
 
 func (cc CampaignCriterion) MarshalXML(e *xml.Encoder, start xml.StartElement) error {
-	isNegative := false
 	//fmt.Printf("processing -> %#v\n",ncc)
 	start.Attr = append(
 		start.Attr,
@@ -32,7 +31,6 @@ func (cc CampaignCriterion) MarshalXML(e *xml.Encoder, start xml.StartElement) e
 	)
 	e.EncodeToken(start)
 	e.EncodeElement(&cc.CampaignId, xml.StartElement{Name: xml.Name{"", "campaignId"}})
-	e.EncodeElement(&isNegative, xml.StartElement{Name: xml.Name{"", "isNegative"}})
 	if err := criterionMarshalXML(cc.Criterion, e); err != nil {
 		return err
 	}
@@ -48,7 +46,6 @@ type CampaignCriterions []interface{}
 type CampaignCriterionOperations map[string]CampaignCriterions
 
 func (ncc NegativeCampaignCriterion) MarshalXML(e *xml.Encoder, start xml.StartElement) error {
-	isNegative := true
 	//fmt.Printf("processing -> %#v\n",ncc)
 	start.Attr = append(
 		start.Attr,
@@ -59,7 +56,6 @@ func (ncc NegativeCampaignCriterion) MarshalXML(e *xml.Encoder, start xml.StartE
 	)
 	e.EncodeToken(start)
 	e.EncodeElement(&ncc.CampaignId, xml.StartElement{Name: xml.Name{"", "campaignId"}})
-	e.EncodeElement(&isNegative, xml.StartElement{Name: xml.Name{"", "isNegative"}})
 	criterionMarshalXML(ncc.Criterion, e)
 	e.EncodeToken(start.End())
 	return nil
