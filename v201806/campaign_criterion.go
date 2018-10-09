@@ -18,6 +18,8 @@ type CampaignCriterion struct {
 	Errors      []error   `xml:"-"`
 }
 
+type NegativeCampaignCriterion CampaignCriterion
+
 func (cc CampaignCriterion) MarshalXML(e *xml.Encoder, start xml.StartElement) error {
 	isNegative := false
 	//fmt.Printf("processing -> %#v\n",ncc)
@@ -42,14 +44,6 @@ func (cc CampaignCriterion) MarshalXML(e *xml.Encoder, start xml.StartElement) e
 	return nil
 }
 
-type NegativeCampaignCriterion struct {
-	CampaignId  int64     `xml:"campaignId"`
-	IsNegative  bool      `xml:"isNegative,omitempty"`
-	Criterion   Criterion `xml:"criterion"`
-	BidModifier *float64  `xml:"bidModifier,omitempty"`
-	Errors      []error   `xml:"-"`
-}
-
 type CampaignCriterions []interface{}
 type CampaignCriterionOperations map[string]CampaignCriterions
 
@@ -72,7 +66,8 @@ func (ncc NegativeCampaignCriterion) MarshalXML(e *xml.Encoder, start xml.StartE
 }
 
 func (ccs *CampaignCriterions) UnmarshalXML(dec *xml.Decoder, start xml.StartElement) error {
-	cc := NegativeCampaignCriterion{}
+	cc := CampaignCriterion{}
+
 	for token, err := dec.Token(); err == nil; token, err = dec.Token() {
 		if err != nil {
 			return err
@@ -101,7 +96,11 @@ func (ccs *CampaignCriterions) UnmarshalXML(dec *xml.Decoder, start xml.StartEle
 			}
 		}
 	}
-	*ccs = append(*ccs, cc)
+	if cc.IsNegative {
+		*ccs = append(*ccs, NegativeCampaignCriterion(cc))
+	} else {
+		*ccs = append(*ccs, cc)
+	}
 	return nil
 }
 
