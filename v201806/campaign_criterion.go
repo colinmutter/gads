@@ -14,7 +14,7 @@ type CampaignCriterion struct {
 	CampaignId  int64     `xml:"campaignId"`
 	IsNegative  bool      `xml:"isNegative,omitempty"`
 	Criterion   Criterion `xml:"criterion"`
-	BidModifier *float64  `xml:"bidModifier,omitempty"`
+	BidModifier float64   `xml:"bidModifier,omitempty"`
 	Errors      []error   `xml:"-"`
 }
 
@@ -34,7 +34,7 @@ func (cc CampaignCriterion) MarshalXML(e *xml.Encoder, start xml.StartElement) e
 	if err := criterionMarshalXML(cc.Criterion, e); err != nil {
 		return err
 	}
-	if cc.BidModifier != nil {
+	if cc.BidModifier != 0 {
 		e.EncodeElement(&cc.BidModifier, xml.StartElement{Name: xml.Name{"", "bidModifier"}})
 	}
 

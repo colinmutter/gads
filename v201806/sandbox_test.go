@@ -1105,8 +1105,8 @@ func TestSandboxCampaignBidModifier(t *testing.T) {
 	for i := range ys {
 		if y, ok := ys[i].(NegativeCampaignCriterion); ok {
 			if crit, ok := y.Criterion.(Location); ok {
-				if y.BidModifier != nil {
-					fmt.Println(y.CampaignId, crit.Id, *y.BidModifier)
+				if y.BidModifier != 0 {
+					fmt.Println(y.CampaignId, crit.Id, y.BidModifier)
 				}
 			}
 		}
@@ -1121,15 +1121,17 @@ func TestSandboxCampaignBidModifier(t *testing.T) {
 				Criterion: Location{
 					Id: 1025197,
 				},
-				BidModifier: &modifier,
+				BidModifier: modifier,
 				IsNegative:  false,
 				CampaignId:  testCampaign,
 			},
 		},
 	}
 
-	xs, err := svc.MutateOperations(ops)
-	fmt.Println(xs, err)
+	xs, _ := svc.MutateOperations(ops)
+	for i := range xs {
+		fmt.Printf("%#v\n", xs[i])
+	}
 
 	//svc := NewCampaignBidModifierService(&config.Auth)
 	//xs, n, err := svc.Get(Selector{
