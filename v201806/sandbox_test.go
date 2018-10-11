@@ -1067,20 +1067,9 @@ func TestSandboxValidateOnly(t *testing.T) {
 func TestSandboxCampaignBidModifier(t *testing.T) {
 	config := getTestConfig()
 
-	constants, err := NewConstantDataService(&config.Auth).GetAgeRangeCriterion()
-	if err != nil {
-		t.Fatal(err)
-	}
-
-	fmt.Println(constants)
-
 	campaigns, _, err := NewCampaignService(&config.Auth).Get(Selector{
 		Fields: []string{"Id", "Name"},
 	})
-
-	for i := range campaigns {
-		fmt.Println(campaigns[i])
-	}
 
 	testCampaign := func() int64 {
 		for i := range campaigns {
@@ -1116,13 +1105,8 @@ func TestSandboxCampaignBidModifier(t *testing.T) {
 				})
 			}
 			if y.BidModifier > 0 {
-				fmt.Println(y.CampaignId, y.BidModifier, y.Type, y.Id)
+				t.Log(y.CampaignId, y.BidModifier, y.Type, y.Id)
 			}
-			//if crit, ok := y.Criterion.(Location); ok {
-			//	if y.BidModifier != 0 {
-			//		fmt.Println(y.CampaignId, crit.Id, y.BidModifier)
-			//	}
-			//}
 		}
 	}
 
@@ -1132,6 +1116,30 @@ func TestSandboxCampaignBidModifier(t *testing.T) {
 		}
 	}
 	modifier := 1.5
+
+	createAdSchedule := []CampaignCriterionOperation{
+		CampaignCriterionOperation{
+			Action: "ADD",
+			CampaignCriterion: CampaignCriterion{
+				Criterion: AdScheduleCriterion{
+					DayOfWeek:   "MONDAY",
+					StartHour:   "0",
+					EndHour:     "24",
+					StartMinute: "ZERO",
+					EndMinute:   "ZERO",
+				},
+				BidModifier: modifier,
+				CampaignId:  testCampaign,
+			},
+		},
+	}
+	if xs, err := svc.MutateOperations(createAdSchedule); err != nil {
+		t.Fatal(err)
+	} else {
+		for i := range xs {
+			t.Logf("%#v\n", xs[i])
+		}
+	}
 
 	ops := []CampaignCriterionOperation{
 		CampaignCriterionOperation{
@@ -1155,16 +1163,12 @@ func TestSandboxCampaignBidModifier(t *testing.T) {
 			},
 		},
 		CampaignCriterionOperation{
-			Action: "ADD",
+			Action: "SET",
 			CampaignCriterion: CampaignCriterion{
 				Criterion: AdScheduleCriterion{
-					DayOfWeek:   "MONDAY",
-					StartHour:   "0",
-					EndHour:     "24",
-					StartMinute: "ZERO",
-					EndMinute:   "ZERO",
+					Id: 300096,
 				},
-				BidModifier: modifier,
+				BidModifier: modifier + 1,
 				CampaignId:  testCampaign,
 			},
 		},
@@ -1175,31 +1179,9 @@ func TestSandboxCampaignBidModifier(t *testing.T) {
 		t.Error(err)
 	}
 	for i := range xs {
-		fmt.Printf("%#v\n", xs[i])
+		t.Logf("%#v\n", xs[i])
 	}
 
-	//svc := NewCampaignBidModifierService(&config.Auth)
-	//xs, n, err := svc.Get(Selector{
-	//	Fields: []string{"CampaignId", "AdvertisingChannelType", "BidModifier"},
-	//})
-	//fmt.Println(xs, n, err)
-
-	//ops := []CampaignBidModifierOperation{
-	//	CampaignBidModifierOperation{
-	//		Operator: "ADD",
-	//		Operand: &CampaignBidModifier{
-	//			CampaignId:  testCampaign,
-	//			BidModifier: 1.2,
-	//			Criterion: CampaignBidModifierCriterion{
-	//				Id:   8000,
-	//				Type: "Location",
-	//			},
-	//		},
-	//	},
-	//}
-
-	//ret, err := svc.MutateOperations(ops)
-	//fmt.Println(ret, err)
 }
 
 func TestSandboxSharedEntity(t *testing.T) {

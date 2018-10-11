@@ -46,11 +46,11 @@ func criterionFromIdAndType(id int64, kind string) (Criterion, error) {
 // EndMinute: ZERO, FIFTEEN, THIRTY, FORTY_FIVE
 type AdScheduleCriterion struct {
 	Id          int64  `xml:"id,omitempty"`
-	DayOfWeek   string `xml:"dayOfWeek"`
-	StartHour   string `xml:"startHour"`
-	StartMinute string `xml:"startMinute"`
-	EndHour     string `xml:"endHour"`
-	EndMinute   string `xml:"endMinute"`
+	DayOfWeek   string `xml:"dayOfWeek,omitempty"`
+	StartHour   string `xml:"startHour,omitempty"`
+	StartMinute string `xml:"startMinute,omitempty"`
+	EndHour     string `xml:"endHour,omitempty"`
+	EndMinute   string `xml:"endMinute,omitempty"`
 }
 
 // AgeRangeType: AGE_RANGE_18_24, AGE_RANGE_25_34, AGE_RANGE_35_44, AGE_RANGE_45_54, AGE_RANGE_55_64, AGE_RANGE_65_UP, AGE_RANGE_UNDETERMINED, UNKNOWN
