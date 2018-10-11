@@ -1096,22 +1096,41 @@ func TestSandboxCampaignBidModifier(t *testing.T) {
 
 	ys, _, err := svc.Get(Selector{
 		Fields: []string{"CampaignId", "BidModifier"},
+		Predicates: []Predicate{
+			{"CampaignId", "EQUALS", []string{strconv.FormatInt(testCampaign, 10)}},
+		},
 	})
 
 	if err != nil {
 		t.Fatal(err)
 	}
 
+	toDelete := []CampaignCriterionOperation{}
 	for i := range ys {
-		if y, ok := ys[i].(NegativeCampaignCriterion); ok {
-			if crit, ok := y.Criterion.(Location); ok {
-				if y.BidModifier != 0 {
-					fmt.Println(y.CampaignId, crit.Id, y.BidModifier)
-				}
+		if y, ok := ys[i].(CampaignCriterion); ok {
+			switch y.Criterion.(type) {
+			case Location, AdScheduleCriterion:
+				toDelete = append(toDelete, CampaignCriterionOperation{
+					Action:            "REMOVE",
+					CampaignCriterion: y,
+				})
 			}
+			if y.BidModifier > 0 {
+				fmt.Println(y.CampaignId, y.BidModifier, y.Type, y.Id)
+			}
+			//if crit, ok := y.Criterion.(Location); ok {
+			//	if y.BidModifier != 0 {
+			//		fmt.Println(y.CampaignId, crit.Id, y.BidModifier)
+			//	}
+			//}
 		}
 	}
 
+	if len(toDelete) > 0 {
+		if _, err = svc.MutateOperations(toDelete); err != nil {
+			t.Fatal(err)
+		}
+	}
 	modifier := 1.5
 
 	ops := []CampaignCriterionOperation{
@@ -1122,13 +1141,39 @@ func TestSandboxCampaignBidModifier(t *testing.T) {
 					Id: 1025197,
 				},
 				BidModifier: modifier,
-				IsNegative:  false,
+				CampaignId:  testCampaign,
+			},
+		},
+		CampaignCriterionOperation{
+			Action: "SET",
+			CampaignCriterion: CampaignCriterion{
+				Criterion: PlatformCriterion{
+					Id: 30002,
+				},
+				BidModifier: modifier,
+				CampaignId:  testCampaign,
+			},
+		},
+		CampaignCriterionOperation{
+			Action: "ADD",
+			CampaignCriterion: CampaignCriterion{
+				Criterion: AdScheduleCriterion{
+					DayOfWeek:   "MONDAY",
+					StartHour:   "0",
+					EndHour:     "24",
+					StartMinute: "ZERO",
+					EndMinute:   "ZERO",
+				},
+				BidModifier: modifier,
 				CampaignId:  testCampaign,
 			},
 		},
 	}
 
-	xs, _ := svc.MutateOperations(ops)
+	xs, err := svc.MutateOperations(ops)
+	if err != nil {
+		t.Error(err)
+	}
 	for i := range xs {
 		fmt.Printf("%#v\n", xs[i])
 	}

@@ -16,6 +16,8 @@ type CampaignCriterion struct {
 	Criterion   Criterion `xml:"criterion"`
 	BidModifier float64   `xml:"bidModifier,omitempty"`
 	Errors      []error   `xml:"-"`
+	Type        string    `xml:"-"`
+	Id          int64     `xml:"-"`
 }
 
 type NegativeCampaignCriterion CampaignCriterion
@@ -31,6 +33,13 @@ func (cc CampaignCriterion) MarshalXML(e *xml.Encoder, start xml.StartElement) e
 	)
 	e.EncodeToken(start)
 	e.EncodeElement(&cc.CampaignId, xml.StartElement{Name: xml.Name{"", "campaignId"}})
+
+	var err error
+	if cc.Criterion == nil {
+		if cc.Criterion, err = criterionFromIdAndType(cc.Id, cc.Type); err != nil {
+			return err
+		}
+	}
 	if err := criterionMarshalXML(cc.Criterion, e); err != nil {
 		return err
 	}
@@ -80,6 +89,7 @@ func (ccs *CampaignCriterions) UnmarshalXML(dec *xml.Decoder, start xml.StartEle
 				if err != nil {
 					return err
 				}
+				cc.Id, cc.Type, _ = criterionIdAndType(criterion)
 				cc.Criterion = criterion
 			case "bidModifier":
 				if err := dec.DecodeElement(&cc.BidModifier, &start); err != nil {
@@ -134,7 +144,13 @@ func NewNegativeCampaignCriterion(campaignId int64, bidModifier float64, criteri
 
 func (s *CampaignCriterionService) Get(selector Selector) (campaignCriterions CampaignCriterions, totalCount int64, err error) {
 	selector.XMLName = xml.Name{baseUrl, "serviceSelector"}
-	respBody, err := s.Auth.request(
+	getResp := struct {
+		XMLName            xml.Name
+		Size               int64              `xml:"rval>totalNumEntries"`
+		CampaignCriterions CampaignCriterions `xml:"rval>entries"`
+	}{}
+
+	err = s.Auth.do(
 		campaignCriterionServiceUrl,
 		"get",
 		struct {
@@ -147,15 +163,8 @@ func (s *CampaignCriterionService) Get(selector Selector) (campaignCriterions Ca
 			},
 			Sel: selector,
 		},
+		&getResp,
 	)
-	if err != nil {
-		return campaignCriterions, totalCount, err
-	}
-	getResp := struct {
-		Size               int64              `xml:"rval>totalNumEntries"`
-		CampaignCriterions CampaignCriterions `xml:"rval>entries"`
-	}{}
-	err = xml.Unmarshal([]byte(respBody), &getResp)
 	if err != nil {
 		return campaignCriterions, totalCount, err
 	}
