@@ -5,38 +5,30 @@ import (
 	"fmt"
 )
 
-type UnsupportedCriterionType struct {
-	kind string
-}
-
-func (s UnsupportedCriterionType) Error() string {
-	return fmt.Sprintf("unsupported criterion type: %s", s.kind)
-}
-
-func criterionIdAndType(crit Criterion) (int64, string, error) {
+func CriterionIdAndType(crit Criterion) (int64, string, bool) {
 	switch c := crit.(type) {
 	case AdScheduleCriterion:
-		return c.Id, "AdSchedule", nil
+		return c.Id, "AdSchedule", true
 	case Location:
-		return c.Id, "Location", nil
+		return c.Id, "Location", true
 	case PlatformCriterion:
-		return c.Id, "Platform", nil
+		return c.Id, "Platform", true
 	}
 
-	return -1, "", UnsupportedCriterionType{fmt.Sprintf("%v", crit)}
+	return -1, "", false
 }
 
-func criterionFromIdAndType(id int64, kind string) (Criterion, error) {
+func CriterionFromIdAndType(id int64, kind string) (Criterion, bool) {
 	switch kind {
 	case "AdSchedule":
-		return AdScheduleCriterion{Id: id}, nil
+		return AdScheduleCriterion{Id: id}, true
 	case "Location":
-		return Location{Id: id}, nil
+		return Location{Id: id}, true
 	case "Platform":
-		return PlatformCriterion{Id: id}, nil
+		return PlatformCriterion{Id: id}, true
 	}
 
-	return nil, UnsupportedCriterionType{"kind"}
+	return nil, false
 }
 
 // DayOfWeek: MONDAY, TUESDAY, WEDNESDAY, THURSDAY, FRIDAY, SATURDAY, SUNDAY

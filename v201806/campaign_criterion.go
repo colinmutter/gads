@@ -1,6 +1,9 @@
 package v201806
 
-import "encoding/xml"
+import (
+	"encoding/xml"
+	"fmt"
+)
 
 type CampaignCriterionService struct {
 	Auth
@@ -34,10 +37,10 @@ func (cc CampaignCriterion) MarshalXML(e *xml.Encoder, start xml.StartElement) e
 	e.EncodeToken(start)
 	e.EncodeElement(&cc.CampaignId, xml.StartElement{Name: xml.Name{"", "campaignId"}})
 
-	var err error
 	if cc.Criterion == nil {
-		if cc.Criterion, err = criterionFromIdAndType(cc.Id, cc.Type); err != nil {
-			return err
+		var ok bool
+		if cc.Criterion, ok = CriterionFromIdAndType(cc.Id, cc.Type); !ok {
+			return fmt.Errorf("missing criterion")
 		}
 	}
 	if err := criterionMarshalXML(cc.Criterion, e); err != nil {
@@ -89,7 +92,7 @@ func (ccs *CampaignCriterions) UnmarshalXML(dec *xml.Decoder, start xml.StartEle
 				if err != nil {
 					return err
 				}
-				cc.Id, cc.Type, _ = criterionIdAndType(criterion)
+				cc.Id, cc.Type, _ = CriterionIdAndType(criterion)
 				cc.Criterion = criterion
 			case "bidModifier":
 				if err := dec.DecodeElement(&cc.BidModifier, &start); err != nil {
